@@ -108,8 +108,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     /// disposing the controllers
     _flickManager?.dispose();
     _flickManager = null;
-    _videoPlayerController?.dispose();
-    _videoPlayerController = null;
+    // _videoPlayerController?.dispose(); // this is disposed in flick manager or video player
     _emptyVideoPlayerController.dispose();
     isVimeoVideoLoaded.dispose();
     SystemChrome.setEnabledSystemUIMode(
