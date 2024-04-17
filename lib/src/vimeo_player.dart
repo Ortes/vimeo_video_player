@@ -39,6 +39,11 @@ class VimeoVideoPlayer extends StatefulWidget {
   /// Used in vimeo video public API call to get the video config
   final Options? dioOptionsForVimeoVideoConfig;
 
+  /// Function to get the video config from a custom API (proxy for example)
+  /// This function should return the config as json
+  /// This function takes the video id as argument
+  final Future<Map<String, dynamic>> Function(String id)? videoConfigFunction;
+
   const VimeoVideoPlayer({
     required this.url,
     this.systemUiOverlay = const [
@@ -56,6 +61,7 @@ class VimeoVideoPlayer extends StatefulWidget {
     this.onFinished,
     this.autoPlay = false,
     this.dioOptionsForVimeoVideoConfig,
+    this.videoConfigFunction,
     super.key,
   });
 
@@ -120,10 +126,10 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   @override
   void dispose() {
     /// disposing the controllers
-    _flickManager = null;
     _flickManager?.dispose();
-    _videoPlayerController = null;
+    _flickManager = null;
     _videoPlayerController?.dispose();
+    _videoPlayerController = null;
     _emptyVideoPlayerController.dispose();
     isVimeoVideoLoaded.dispose();
     SystemChrome.setEnabledSystemUIMode(
@@ -155,7 +161,8 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
                   flickVideoWithControlsFullscreen:
                       const FlickVideoWithControls(
                     controls: FlickLandscapeControls(),
-                  ),
+                  ),wakelockEnabled: false,
+
                 )
               : const Center(
                   child: CircularProgressIndicator(
@@ -264,12 +271,16 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     required String vimeoVideoId,
   }) async {
     try {
-      Response responseData = await Dio().get(
-        'https://player.vimeo.com/video/$vimeoVideoId/config',
-        options: widget.dioOptionsForVimeoVideoConfig,
-      );
-      var vimeoVideo = VimeoVideoConfig.fromJson(responseData.data);
-      return vimeoVideo;
+      if (widget.videoConfigFunction != null) {
+        final response = await widget.videoConfigFunction!(vimeoVideoId);
+        return VimeoVideoConfig.fromJson(response);
+      } else {
+        Response responseData = await Dio().get(
+          'https://player.vimeo.com/video/$vimeoVideoId/config',
+          options: widget.dioOptionsForVimeoVideoConfig,
+        );
+        return VimeoVideoConfig.fromJson(responseData.data);
+      }
     } on DioException catch (e) {
       log('Dio Error : ', name: e.error.toString());
       return null;

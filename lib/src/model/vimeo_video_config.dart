@@ -20,14 +20,16 @@ class VimeoFiles {
   VimeoFiles({this.progressive});
 
   factory VimeoFiles.fromJson(Map<String, dynamic> json) {
-    final jsonData = json['progressive'] as List<dynamic>;
+    var progressiveUrls = <VimeoProgressive>[];
 
-    final progressiveUrls = List.generate(
-      jsonData.length,
-      (index) => VimeoProgressive.fromJson(jsonData[index]),
-    );
+    if (json['progressive'] != null) {
+      final jsonData = json['progressive'] as List<dynamic>;
 
-    if (progressiveUrls.isEmpty) {
+      progressiveUrls = List.generate(
+        jsonData.length,
+        (index) => VimeoProgressive.fromJson(jsonData[index]),
+      );
+    } else {
       final jsonRes = json['hls']['cdns'];
 
       for (final element in (jsonRes as Map).entries.toList()) {
@@ -40,9 +42,7 @@ class VimeoFiles {
       }
     }
 
-    return VimeoFiles(
-      progressive: progressiveUrls,
-    );
+    return VimeoFiles(progressive: progressiveUrls);
   }
 
   List<VimeoProgressive?>? progressive;

@@ -38,6 +38,16 @@ VimeoVideoPlayer(
 );
 ```
 
+### Web Support
+
+This package uses video_player_web_hls for web support. You need to add the following to your index.html file:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+```
+
+For more information, please refer to the [video_player_web_hls](https://pub.dev/packages/video_player_web_hls) package.
+
 ### Required parameters of VimeoVideoPlayer
 ------------
 | Parameter  | Description                         |
